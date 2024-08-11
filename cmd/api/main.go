@@ -18,7 +18,6 @@ type config struct {
 
 type application struct {
 	config config
-	logger *slog.Logger
 }
 
 func main() {
@@ -29,10 +28,10 @@ func main() {
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
 	app := &application{
 		config: cfg,
-		logger: logger,
 	}
 
 	srv := &http.Server{
@@ -44,9 +43,9 @@ func main() {
 		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 
-	logger.Info("starting server", "addr", srv.Addr, "env", cfg.env)
+	slog.Info("starting server", "addr", srv.Addr, "env", cfg.env)
 
 	err := srv.ListenAndServe()
-	logger.Error(err.Error())
+	slog.Error(err.Error())
 	os.Exit(1)
 }
